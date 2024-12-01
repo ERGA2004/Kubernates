@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k6-script
+data:
+  load-test.js: |
+    import http from 'k6/http';
+    import { check } from 'k6';
+
+    export let options = {
+        stages: [
+            { duration: '30s', target: 10 },
+            { duration: '1m', target: 20 },
+            { duration: '30s', target: 0 },
+        ],
+    };
+
+    export default function () {
+        let res = http.get('http://prometheus-server.default.svc.cluster.local:80');
+        check(res, {
+            'is status 200': (r) => r.status === 200,
+        });
+    }
